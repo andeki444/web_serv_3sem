@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Models\Article;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use App\Jobs\VeryLongJob;
 
 class ArticleController extends Controller
 {
@@ -39,15 +40,14 @@ class ArticleController extends Controller
         $validated['preview_image'] = 'preview.jpg';
         $validated['full_image'] = 'full.jpeg';
 
-        // 1. Сохраняем новую статью в базу данных
+        // 1. Создаем и сохраняем статью в БД
         $article = Article::create($validated);
 
-        // 2. Отправляем письмо модератору через фасад Mail
-        $moderatorEmail = 'hueputolo228@mail.ru'; 
+        // 2. Отправляем задачу рассылки в очередь фоновых заданий
+        VeryLongJob::dispatch($article);
 
-        Mail::to($moderatorEmail)->send(new ArticleCreatedMail($article));
-
-        return redirect()->route('articles.index')->with('success', 'Статья успешно добавлена, модератору отправлено email-уведомление!');
+        return redirect()->route('articles.index')
+            ->with('success', 'Статья успешно сохранена, а уведомление модератору отправлено в очередь!');
     }
 
     // 4. Просмотр одной полной статьи
