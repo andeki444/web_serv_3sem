@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use App\Models\Role;
 
 class AuthController extends Controller
 {
@@ -24,10 +25,13 @@ class AuthController extends Controller
             'password' => 'required|string|min:6|confirmed',
         ]);
 
+        $readerRole = Role::firstOrCreate(['name' => 'reader']);
+
         User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
+            'role_id' => $readerRole->id,
         ]);
 
         return redirect()->route('login')->with('success', 'Регистрация прошла успешно! Войдите в свой аккаунт.');

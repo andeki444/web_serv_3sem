@@ -20,13 +20,24 @@
             <div>
                 <a href="/" style="margin-right: 15px;">Главная</a>
                 <a href="/articles" style="margin-right: 15px;">Статьи</a>
+
+                {{-- Пункт меню виден ТОЛЬКО модератору --}}
+                @can('create', App\Models\Article::class)
+                    <a href="{{ route('articles.create') }}" style="margin-right: 15px; color: #28a745; font-weight: bold;">
+                        + Создать новость
+                    </a>
+                @endcan
+
                 <a href="/about" style="margin-right: 15px;">О нас</a>
                 <a href="/contact" style="margin-right: 15px;">Контакты</a>
             </div>
 
             <div>
                 @auth
-                    <span style="margin-right: 15px;">Пользователь: <strong>{{ Auth::user()->name }}</strong></span>
+                    <span style="margin-right: 15px;">
+                        {{ Auth::user()->name }} 
+                        <small style="color: #666;">({{ Auth::user()->role->name ?? 'читатель' }})</small>
+                    </span>
                     <form action="{{ route('logout') }}" method="POST" style="display: inline;">
                         @csrf
                         <button type="submit" style="background: none; border: none; color: #dc3545; cursor: pointer; font-weight: bold; text-decoration: underline;">

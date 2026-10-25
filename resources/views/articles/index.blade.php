@@ -4,7 +4,6 @@
 
 @section('content')
     <style>
-        /* Аккуратные кнопки и размер стрелок пагинации */
         nav[role="navigation"] svg {
             width: 16px !important;
             height: 16px !important;
@@ -43,12 +42,12 @@
 
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <h1>Статьи из базы данных</h1>
-        @auth
+        @can('create', App\Models\Article::class)
             <a href="{{ route('articles.create') }}" 
                style="background-color: #28a745; color: white; padding: 10px 16px; text-decoration: none; border-radius: 4px; font-weight: bold;">
                 + Создать статью
             </a>
-        @endauth
+        @endcan
     </div>
 
     @if(session('success'))
@@ -64,9 +63,9 @@
                 <th>Дата</th>
                 <th>Превью</th>
                 <th>Заголовок</th>
-                @auth
+                @can('create', App\Models\Article::class)
                     <th>Действия</th>
-                @endauth
+                @endcan
             </tr>
         </thead>
         <tbody>
@@ -83,22 +82,24 @@
                         </a>
                         <p style="font-size: 13px; color: #666; margin: 4px 0 0 0;">{{ $article->short_desc }}</p>
                     </td>
-                    @auth
+                    @can('update', $article)
                         <td style="white-space: nowrap; text-align: center;">
                             <a href="{{ route('articles.edit', $article->id) }}" style="color: #d39e00; margin-right: 12px;">Редактировать</a>
-                            <form action="{{ route('articles.destroy', $article->id) }}" method="POST" style="display: inline-block;" onsubmit="return confirm('Точно удалить статью?');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" style="background: none; border: none; color: #dc3545; cursor: pointer; text-decoration: underline;">
-                                    Удалить
-                                </button>
-                            </form>
+                            @can('delete', $article)
+                                <form action="{{ route('articles.destroy', $article->id) }}" method="POST" style="display: inline-block;" onsubmit="return confirm('Точно удалить статью?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" style="background: none; border: none; color: #dc3545; cursor: pointer; text-decoration: underline;">
+                                        Удалить
+                                    </button>
+                                </form>
+                            @endcan
                         </td>
-                    @endauth
+                    @endcan
                 </tr>
             @empty
                 <tr>
-                    <td colspan="{{ Auth::check() ? 5 : 4 }}" style="text-align: center;">Статей пока нет</td>
+                    <td colspan="5" style="text-align: center;">Статей пока нет</td>
                 </tr>
             @endforelse
         </tbody>

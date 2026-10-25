@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Article;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class ArticleController extends Controller
 {
@@ -17,12 +18,15 @@ class ArticleController extends Controller
     // 2. Страница с формой добавления
     public function create()
     {
+        Gate::authorize('create', Article::class);
         return view('articles.create');
     }
 
     // 3. Сохранение новой статьи в БД с валидацией
     public function store(Request $request)
     {
+        Gate::authorize('create', Article::class);
+
         $validated = $request->validate([
             'date' => 'required|date',
             'name' => 'required|min:3|max:255',
@@ -47,12 +51,15 @@ class ArticleController extends Controller
     // 5. Страница с формой редактирования
     public function edit(Article $article)
     {
+        Gate::authorize('update', $article);
         return view('articles.edit', ['article' => $article]);
     }
 
     // 6. Обновление статьи в БД с валидацией
     public function update(Request $request, Article $article)
     {
+        Gate::authorize('update', $article);
+
         $validated = $request->validate([
             'date' => 'required|date',
             'name' => 'required|min:3|max:255',
@@ -68,6 +75,8 @@ class ArticleController extends Controller
     // 7. Удаление статьи из БД
     public function destroy(Article $article)
     {
+        Gate::authorize('delete', $article);
+
         $article->delete();
         return redirect()->route('articles.index')->with('success', 'Статья успешно удалена!');
     }
