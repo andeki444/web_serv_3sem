@@ -9,7 +9,6 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Создаем 10 фейковых статей через фабрику
-        Article::factory(10)->create();
+        \App\Models\Article::factory(10)->create();
     }
 }
