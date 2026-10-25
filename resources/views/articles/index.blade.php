@@ -3,12 +3,52 @@
 @section('title', 'Управление статьями')
 
 @section('content')
+    <style>
+        /* Аккуратные кнопки и размер стрелок пагинации */
+        nav[role="navigation"] svg {
+            width: 16px !important;
+            height: 16px !important;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        nav[role="navigation"] > div:first-child {
+            display: none !important;
+        }
+        nav[role="navigation"] > div:last-child {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        nav[role="navigation"] a, 
+        nav[role="navigation"] span[aria-disabled="true"] span,
+        nav[role="navigation"] span[aria-current="page"] span {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border: 1px solid #ccc;
+            margin: 0 2px;
+            text-decoration: none;
+            color: #007bff;
+            border-radius: 4px;
+            background: #fff;
+        }
+        nav[role="navigation"] span[aria-current="page"] span {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+    </style>
+
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <h1>Статьи из базы данных</h1>
-        <a href="{{ route('articles.create') }}" 
-           style="background-color: #28a745; color: white; padding: 10px 16px; text-decoration: none; border-radius: 4px; font-weight: bold;">
-            + Создать статью
-        </a>
+        @auth
+            <a href="{{ route('articles.create') }}" 
+               style="background-color: #28a745; color: white; padding: 10px 16px; text-decoration: none; border-radius: 4px; font-weight: bold;">
+                + Создать статью
+            </a>
+        @endauth
     </div>
 
     @if(session('success'))
@@ -17,68 +57,6 @@
         </div>
     @endif
 
-@auth
-    <a href="{{ route('articles.create') }}" 
-        style="background-color: #28a745; color: white; padding: 10px 16px; text-decoration: none; border-radius: 4px; font-weight: bold;">
-        + Создать статью
-    </a>
-@endauth
-
-@auth
-    <td style="white-space: nowrap; text-align: center;">
-        <a href="{{ route('articles.edit', $article->id) }}" style="color: #d39e00; margin-right: 12px;">Редактировать</a>
-        <form action="{{ route('articles.destroy', $article->id) }}" method="POST" style="display: inline-block;" onsubmit="return confirm('Точно удалить статью?');">
-            @csrf
-            @method('DELETE')
-            <button type="submit" style="background: none; border: none; color: #dc3545; cursor: pointer; text-decoration: underline;">
-                Удалить
-            </button>
-        </form>
-    </td>
-@endauth
-
-<style>
-    nav[role="navigation"] svg {
-        width: 16px !important;
-        height: 16px !important;
-        display: inline-block;
-        vertical-align: middle;
-    }
-
-    nav[role="navigation"] > div:first-child {
-        display: none !important;
-    }
-
-    nav[role="navigation"] > div:last-child {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 15px;
-        font-size: 14px;
-    }
-
-    nav[role="navigation"] a, 
-    nav[role="navigation"] span[aria-disabled="true"] span,
-    nav[role="navigation"] span[aria-current="page"] span {
-        display: inline-flex;
-        align-items: center;
-        padding: 6px 12px;
-        border: 1px solid #ccc;
-        margin: 0 2px;
-        text-decoration: none;
-        color: #007bff;
-        border-radius: 4px;
-        background: #fff;
-    }
-
-    /* Активная страница */
-    nav[role="navigation"] span[aria-current="page"] span {
-        background-color: #007bff;
-        color: white;
-        border-color: #007bff;
-    }
-</style>
-
     <table border="1" cellpadding="10" cellspacing="0" style="width: 100%; border-collapse: collapse;">
         <thead>
             <tr style="background-color: #f2f2f2;">
@@ -86,7 +64,9 @@
                 <th>Дата</th>
                 <th>Превью</th>
                 <th>Заголовок</th>
-                <th>Действия</th>
+                @auth
+                    <th>Действия</th>
+                @endauth
             </tr>
         </thead>
         <tbody>
@@ -103,20 +83,22 @@
                         </a>
                         <p style="font-size: 13px; color: #666; margin: 4px 0 0 0;">{{ $article->short_desc }}</p>
                     </td>
-                    <td style="white-space: nowrap; text-align: center;">
-                        <a href="{{ route('articles.edit', $article->id) }}" style="color: #d39e00; margin-right: 12px;">Редактировать</a>
-                        <form action="{{ route('articles.destroy', $article->id) }}" method="POST" style="display: inline-block;" onsubmit="return confirm('Точно удалить статью?');">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" style="background: none; border: none; color: #dc3545; cursor: pointer; text-decoration: underline;">
-                                Удалить
-                            </button>
-                        </form>
-                    </td>
+                    @auth
+                        <td style="white-space: nowrap; text-align: center;">
+                            <a href="{{ route('articles.edit', $article->id) }}" style="color: #d39e00; margin-right: 12px;">Редактировать</a>
+                            <form action="{{ route('articles.destroy', $article->id) }}" method="POST" style="display: inline-block;" onsubmit="return confirm('Точно удалить статью?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" style="background: none; border: none; color: #dc3545; cursor: pointer; text-decoration: underline;">
+                                    Удалить
+                                </button>
+                            </form>
+                        </td>
+                    @endauth
                 </tr>
             @empty
                 <tr>
-                    <td colspan="5" style="text-align: center;">Статей пока нет</td>
+                    <td colspan="{{ Auth::check() ? 5 : 4 }}" style="text-align: center;">Статей пока нет</td>
                 </tr>
             @endforelse
         </tbody>

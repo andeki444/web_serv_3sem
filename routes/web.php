@@ -21,9 +21,8 @@ Route::get('/contact', function () {
     return view('contact', ['contacts' => $contacts]);
 })->name('contact');
 
-// Публичный просмотр списка статей и отдельной статьи
+// Публичный просмотр списка статей
 Route::get('/articles', [ArticleController::class, 'index'])->name('articles.index');
-Route::get('/articles/{article}', [ArticleController::class, 'show'])->name('articles.show');
 
 // Маршруты авторизации и регистрации (Лаба 6)
 Route::middleware('guest')->group(function () {
@@ -34,9 +33,9 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
 });
 
-// Защищенные маршруты: только для авторизованных через Sanctum
+// Защищенные маршруты: только для авторизованных пользователей
+// ВАЖНО: /articles/create обязан находиться ВЫШЕ, чем /articles/{article}
 Route::middleware('auth:sanctum')->group(function () {
-    // CRUD операции со статьями
     Route::get('/articles/create', [ArticleController::class, 'create'])->name('articles.create');
     Route::post('/articles', [ArticleController::class, 'store'])->name('articles.store');
     Route::get('/articles/{article}/edit', [ArticleController::class, 'edit'])->name('articles.edit');
@@ -46,3 +45,6 @@ Route::middleware('auth:sanctum')->group(function () {
     // Выход из системы
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
+
+// Публичный просмотр одной статьи (СТРОГО ПОД ГРУППОЙ CREATE)
+Route::get('/articles/{article}', [ArticleController::class, 'show'])->name('articles.show');

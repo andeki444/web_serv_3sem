@@ -63,20 +63,21 @@ class AuthController extends Controller
     }
 
     // 3. Выход: удаление токенов, аннулирование сессии, обновление CSRF + redirect на главную
+    // 3. Выход: удаление токенов, аннулирование сессии, обновление CSRF + redirect на главную
     public function logout(Request $request)
     {
-        // Удаление токенов пользователя Sanctum
+        // 1. Удаление персональных токенов пользователя Sanctum
         if ($request->user()) {
             $request->user()->tokens()->delete();
         }
 
-        // Выход из системы
-        Auth::logout();
+        // 2. Выход из веб-сессии через guard 'web'
+        Auth::guard('web')->logout();
 
-        // Аннулирование текущей сессии
+        // 3. Аннулирование текущей сессии
         $request->session()->invalidate();
 
-        // Обновление токена CSRF
+        // 4. Обновление токена CSRF
         $request->session()->regenerateToken();
 
         return redirect()->route('home')->with('success', 'Вы успешно вышли из системы.');
