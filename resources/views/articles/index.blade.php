@@ -16,6 +16,51 @@
             {{ session('success') }}
         </div>
     @endif
+    
+<style>
+    /* 1. Ограничиваем гигантские стрелки SVG */
+    nav[role="navigation"] svg {
+        width: 16px !important;
+        height: 16px !important;
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+    /* 2. Скрываем дублирующий мобильный блок Laravel */
+    nav[role="navigation"] > div:first-child {
+        display: none !important;
+    }
+
+    /* 3. Делаем аккуратные кнопки пагинации */
+    nav[role="navigation"] > div:last-child {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 15px;
+        font-size: 14px;
+    }
+
+    nav[role="navigation"] a, 
+    nav[role="navigation"] span[aria-disabled="true"] span,
+    nav[role="navigation"] span[aria-current="page"] span {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 12px;
+        border: 1px solid #ccc;
+        margin: 0 2px;
+        text-decoration: none;
+        color: #007bff;
+        border-radius: 4px;
+        background: #fff;
+    }
+
+    /* Активная страница */
+    nav[role="navigation"] span[aria-current="page"] span {
+        background-color: #007bff;
+        color: white;
+        border-color: #007bff;
+    }
+</style>
 
     <table border="1" cellpadding="10" cellspacing="0" style="width: 100%; border-collapse: collapse;">
         <thead>
