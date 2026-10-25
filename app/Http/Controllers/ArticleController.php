@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\ArticleCreatedMail;
+use Illuminate\Support\Facades\Mail;
 use App\Models\Article;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -37,9 +39,15 @@ class ArticleController extends Controller
         $validated['preview_image'] = 'preview.jpg';
         $validated['full_image'] = 'full.jpeg';
 
-        Article::create($validated);
+        // 1. Сохраняем новую статью в базу данных
+        $article = Article::create($validated);
 
-        return redirect()->route('articles.index')->with('success', 'Статья успешно добавлена!');
+        // 2. Отправляем письмо модератору через фасад Mail
+        $moderatorEmail = 'hueputolo228@mail.ru'; 
+
+        Mail::to($moderatorEmail)->send(new ArticleCreatedMail($article));
+
+        return redirect()->route('articles.index')->with('success', 'Статья успешно добавлена, модератору отправлено email-уведомление!');
     }
 
     // 4. Просмотр одной полной статьи

@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MainController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\CommentController;
 
 // Публичные страницы (Лабы 1 и 2)
 Route::get('/', [MainController::class, 'index'])->name('home');
@@ -34,7 +35,6 @@ Route::middleware('guest')->group(function () {
 });
 
 // Защищенные маршруты: только для авторизованных пользователей
-// ВАЖНО: /articles/create обязан находиться ВЫШЕ, чем /articles/{article}
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/articles/create', [ArticleController::class, 'create'])->name('articles.create');
     Route::post('/articles', [ArticleController::class, 'store'])->name('articles.store');
@@ -44,7 +44,14 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Выход из системы
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+    // Добавление комментария пользователем
+    Route::post('/articles/{article}/comments', [CommentController::class, 'store'])->name('comments.store');
+
+    // Панель модерации комментариев (только для модератора)
+    Route::get('/moderation/comments', [CommentController::class, 'index'])->name('comments.moderation');
+    Route::patch('/moderation/comments/{comment}/approve', [CommentController::class, 'approve'])->name('comments.approve');
+    Route::delete('/moderation/comments/{comment}/reject', [CommentController::class, 'reject'])->name('comments.reject');
 });
 
-// Публичный просмотр одной статьи (СТРОГО ПОД ГРУППОЙ CREATE)
 Route::get('/articles/{article}', [ArticleController::class, 'show'])->name('articles.show');

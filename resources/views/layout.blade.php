@@ -21,10 +21,13 @@
                 <a href="/" style="margin-right: 15px;">Главная</a>
                 <a href="/articles" style="margin-right: 15px;">Статьи</a>
 
-                {{-- Пункт меню виден ТОЛЬКО модератору --}}
+                {{-- Пункты меню видны ТОЛЬКО модератору --}}
                 @can('create', App\Models\Article::class)
                     <a href="{{ route('articles.create') }}" style="margin-right: 15px; color: #28a745; font-weight: bold;">
                         + Создать новость
+                    </a>
+                    <a href="{{ route('comments.moderation') }}" style="margin-right: 15px; color: #ffc107; font-weight: bold;">
+                        Модерация комментариев
                     </a>
                 @endcan
 

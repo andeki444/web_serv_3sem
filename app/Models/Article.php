@@ -12,4 +12,8 @@ class Article extends Model
     protected $fillable = [
         'date', 'name', 'short_desc', 'desc', 'preview_image', 'full_image'
     ];
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
 }
