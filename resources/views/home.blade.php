@@ -15,15 +15,19 @@
             </tr>
         </thead>
         <tbody>
-            @forelse($articles as $article)
+            @forelse($articles as $id => $article)
                 <tr>
                     <td style="white-space: nowrap;">{{ $article['Дата'] }}</td>
                     <td style="text-align: center;">
-                        <a href="{{ route('galery', ['img' => $article['full_image']]) }}" title="Открыть оригинал">
+                        <a href="{{ route('galery', ['id' => $id]) }}" title="Открыть оригинал">
                             <img src="{{ asset($article['preview_image']) }}" alt="{{ $article['Название'] }}" width="120" style="border-radius: 4px;">
                         </a>
                     </td>
-                    <td><strong>{{ $article['Название'] }}</strong></td>
+                    <td>
+                        <a href="{{ route('galery', ['id' => $id]) }}" style="font-weight: bold; color: #007bff; text-decoration: none;">
+                            {{ $article['Название'] }}
+                        </a>
+                    </td>
                     <td>{{ $article['Краткое описание'] }}</td>
                 </tr>
             @empty
