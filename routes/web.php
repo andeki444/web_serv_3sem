@@ -3,6 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MainController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ArticleController;
+
+Route::get('/articles', [ArticleController::class, 'index'])->name('articles.index');
 
 // роут для отображения страницы регистрации
 Route::get('/signin', [AuthController::class, 'create'])->name('signin');
