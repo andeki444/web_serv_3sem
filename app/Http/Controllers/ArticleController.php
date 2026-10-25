@@ -3,12 +3,72 @@
 namespace App\Http\Controllers;
 
 use App\Models\Article;
+use Illuminate\Http\Request;
 
 class ArticleController extends Controller
 {
+    // 1. Список статей с пагинацией по 5 штук
     public function index()
     {
-        $articles = Article::all();
+        $articles = Article::latest('id')->paginate(5);
         return view('articles.index', ['articles' => $articles]);
+    }
+
+    // 2. Страница с формой добавления
+    public function create()
+    {
+        return view('articles.create');
+    }
+
+    // 3. Сохранение новой статьи в БД с валидацией
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'date' => 'required|date',
+            'name' => 'required|min:3|max:255',
+            'short_desc' => 'required|min:5',
+            'desc' => 'required|min:10',
+        ]);
+
+        $validated['preview_image'] = 'preview.jpg';
+        $validated['full_image'] = 'full.jpeg';
+
+        Article::create($validated);
+
+        return redirect()->route('articles.index')->with('success', 'Статья успешно добавлена!');
+    }
+
+    // 4. Просмотр одной полной статьи
+    public function show(Article $article)
+    {
+        return view('articles.show', ['article' => $article]);
+    }
+
+    // 5. Страница с формой редактирования
+    public function edit(Article $article)
+    {
+        return view('articles.edit', ['article' => $article]);
+    }
+
+    // 6. Обновление статьи в БД с валидацией
+    public function update(Request $request, Article $article)
+    {
+        $validated = $request->validate([
+            'date' => 'required|date',
+            'name' => 'required|min:3|max:255',
+            'short_desc' => 'required|min:5',
+            'desc' => 'required|min:10',
+        ]);
+
+        $article->update($validated);
+
+        return redirect()->route('articles.index')->with('success', 'Статья успешно обновлена!');
+    }
+
+    // 7. Удаление статьи из БД
+    public function destroy(Article $article)
+    {
+        $article->delete();
+        return redirect()->route('articles.index')->with('success', 'Статья успешно удалена!');
     }
 }
