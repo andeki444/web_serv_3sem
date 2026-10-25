@@ -2,6 +2,13 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MainController;
+use App\Http\Controllers\AuthController;
+
+// роут для отображения страницы регистрации
+Route::get('/signin', [AuthController::class, 'create'])->name('signin');
+
+// роут для отправки данных формы методом POST
+Route::post('/signin', [AuthController::class, 'registration'])->name('registration');
 
 // главная страница теперь вызывает метод index контроллера
 Route::get('/', [MainController::class, 'index']);
