@@ -1,11 +1,15 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\MainController;
 
-Route::get('/', function () {
-    return view('home');
-});
+// главная страница теперь вызывает метод index контроллера
+Route::get('/', [MainController::class, 'index']);
 
+// маршрут галереи с параметром имени изображения
+Route::get('/galery/{img}', [MainController::class, 'galery'])->name('galery');
+
+// маршруты из первой лабы
 Route::get('/about', function () {
     return view('about');
 });
