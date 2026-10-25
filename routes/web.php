@@ -5,7 +5,7 @@ use App\Http\Controllers\MainController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ArticleController;
 
-// Лаба 1 и 2
+// Публичные страницы (Лабы 1 и 2)
 Route::get('/', [MainController::class, 'index'])->name('home');
 Route::get('/galery/{id}', [MainController::class, 'galery'])->name('galery');
 Route::get('/about', function () {
@@ -21,9 +21,28 @@ Route::get('/contact', function () {
     return view('contact', ['contacts' => $contacts]);
 })->name('contact');
 
-// Лаба 3 (Регистрация)
-Route::get('/signin', [AuthController::class, 'create'])->name('signin');
-Route::post('/signin', [AuthController::class, 'registration'])->name('registration');
+// Публичный просмотр списка статей и отдельной статьи
+Route::get('/articles', [ArticleController::class, 'index'])->name('articles.index');
+Route::get('/articles/{article}', [ArticleController::class, 'show'])->name('articles.show');
 
-// Лаба 5 (Полный CRUD и пагинация для статей)
-Route::resource('articles', ArticleController::class);
+// Маршруты авторизации и регистрации (Лаба 6)
+Route::middleware('guest')->group(function () {
+    Route::get('/register', [AuthController::class, 'create'])->name('register');
+    Route::post('/register', [AuthController::class, 'register']);
+
+    Route::get('/login', [AuthController::class, 'loginForm'])->name('login');
+    Route::post('/login', [AuthController::class, 'login']);
+});
+
+// Защищенные маршруты: только для авторизованных через Sanctum
+Route::middleware('auth:sanctum')->group(function () {
+    // CRUD операции со статьями
+    Route::get('/articles/create', [ArticleController::class, 'create'])->name('articles.create');
+    Route::post('/articles', [ArticleController::class, 'store'])->name('articles.store');
+    Route::get('/articles/{article}/edit', [ArticleController::class, 'edit'])->name('articles.edit');
+    Route::put('/articles/{article}', [ArticleController::class, 'update'])->name('articles.update');
+    Route::delete('/articles/{article}', [ArticleController::class, 'destroy'])->name('articles.destroy');
+
+    // Выход из системы
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+});

@@ -16,12 +16,28 @@
 <body>
 
     <header>
-        <nav>
-            <a href="/">Главная</a>
-            <a href="/articles">Статьи</a>
-            <a href="/about">О нас</a>
-            <a href="/contact">Контакты</a>
-            <a href="/signin">Регистрация</a>
+        <nav style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">
+            <div>
+                <a href="/" style="margin-right: 15px;">Главная</a>
+                <a href="/articles" style="margin-right: 15px;">Статьи</a>
+                <a href="/about" style="margin-right: 15px;">О нас</a>
+                <a href="/contact" style="margin-right: 15px;">Контакты</a>
+            </div>
+
+            <div>
+                @auth
+                    <span style="margin-right: 15px;">Пользователь: <strong>{{ Auth::user()->name }}</strong></span>
+                    <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+                        @csrf
+                        <button type="submit" style="background: none; border: none; color: #dc3545; cursor: pointer; font-weight: bold; text-decoration: underline;">
+                            Выйти
+                        </button>
+                    </form>
+                @else
+                    <a href="{{ route('login') }}" style="margin-right: 15px;">Войти</a>
+                    <a href="{{ route('register') }}">Регистрация</a>
+                @endauth
+            </div>
         </nav>
     </header>
 

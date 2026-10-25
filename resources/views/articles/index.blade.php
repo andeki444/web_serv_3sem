@@ -16,9 +16,28 @@
             {{ session('success') }}
         </div>
     @endif
-    
+
+@auth
+    <a href="{{ route('articles.create') }}" 
+        style="background-color: #28a745; color: white; padding: 10px 16px; text-decoration: none; border-radius: 4px; font-weight: bold;">
+        + Создать статью
+    </a>
+@endauth
+
+@auth
+    <td style="white-space: nowrap; text-align: center;">
+        <a href="{{ route('articles.edit', $article->id) }}" style="color: #d39e00; margin-right: 12px;">Редактировать</a>
+        <form action="{{ route('articles.destroy', $article->id) }}" method="POST" style="display: inline-block;" onsubmit="return confirm('Точно удалить статью?');">
+            @csrf
+            @method('DELETE')
+            <button type="submit" style="background: none; border: none; color: #dc3545; cursor: pointer; text-decoration: underline;">
+                Удалить
+            </button>
+        </form>
+    </td>
+@endauth
+
 <style>
-    /* 1. Ограничиваем гигантские стрелки SVG */
     nav[role="navigation"] svg {
         width: 16px !important;
         height: 16px !important;
@@ -26,12 +45,10 @@
         vertical-align: middle;
     }
 
-    /* 2. Скрываем дублирующий мобильный блок Laravel */
     nav[role="navigation"] > div:first-child {
         display: none !important;
     }
 
-    /* 3. Делаем аккуратные кнопки пагинации */
     nav[role="navigation"] > div:last-child {
         display: flex;
         justify-content: space-between;
