@@ -3,13 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MainController;
 
-// главная страница теперь вызывает метод index контроллера
 Route::get('/', [MainController::class, 'index']);
+Route::get('/galery/{id}', [MainController::class, 'galery'])->name('galery');
 
-// маршрут галереи с параметром имени изображения
-Route::get('/galery/{img}', [MainController::class, 'galery'])->name('galery');
-
-// маршруты из первой лабы
 Route::get('/about', function () {
     return view('about');
 });

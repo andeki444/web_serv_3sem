@@ -1,11 +1,21 @@
 @extends('layout')
 
-@section('title', 'Просмотр изображения')
+@section('title', $article['Название'])
 
 @section('content')
     <p><a href="/">&larr; Вернуться к списку статей</a></p>
 
-    <div style="text-align: center; margin-top: 20px;">
-        <img src="{{ asset($image) }}" alt="Полноразмерное изображение" style="max-width: 100%; height: auto; border: 1px solid #ccc; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-    </div>
+    <article style="max-width: 800px; margin: 20px auto; background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #ddd;">
+        <h1 style="margin-top: 0;">{{ $article['Название'] }}</h1>
+        <p style="color: #777; font-size: 14px;">Дата публикации: {{ $article['Дата'] }}</p>
+
+        <div style="text-align: center; margin: 25px 0;">
+            <img src="{{ asset($article['full_image']) }}" alt="{{ $article['Название'] }}" 
+                 style="max-width: 100%; height: auto; border-radius: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
+        </div>
+
+        <div style="line-height: 1.7; font-size: 16px; color: #333;">
+            <p>{{ $article['Описание'] }}</p>
+        </div>
+    </article>
 @endsection
