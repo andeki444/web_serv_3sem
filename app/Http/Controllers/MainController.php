@@ -7,23 +7,26 @@ use Illuminate\Support\Facades\File;
 
 class MainController extends Controller
 {
-    // Метод чтения JSON-файла и отправки данных на главную страницу
     public function index()
     {
         $path = public_path('articles.json');
-        
         $articles = [];
         if (File::exists($path)) {
-            $json = File::get($path);
-            $articles = json_decode($json, true);
+            $articles = json_decode(File::get($path), true);
         }
 
         return view('home', ['articles' => $articles]);
     }
 
-    // Метод для страницы galery с отображением full_image
-    public function galery($img)
+    public function galery($id)
     {
-        return view('galery', ['image' => $img]);
+        $path = public_path('articles.json');
+        $articles = File::exists($path) ? json_decode(File::get($path), true) : [];
+
+        if (!isset($articles[$id])) {
+            abort(404);
+        }
+
+        return view('galery', ['article' => $articles[$id]]);
     }
 }
