@@ -52,6 +52,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/moderation/comments', [CommentController::class, 'index'])->name('comments.moderation');
     Route::patch('/moderation/comments/{comment}/approve', [CommentController::class, 'approve'])->name('comments.approve');
     Route::delete('/moderation/comments/{comment}/reject', [CommentController::class, 'reject'])->name('comments.reject');
+
+    // 10. Отметка уведомления прочитанным и переход к статье
+    Route::get('/notifications/{id}/read', function ($id) {
+        $notification = Auth::user()->notifications()->findOrFail($id);
+        $notification->markAsRead();
+
+        return redirect()->route('articles.show', $notification->data['article_id']);
+    })->name('notifications.read'); 
 });
 
 Route::get('/articles/{article}', [ArticleController::class, 'show'])->name('articles.show');

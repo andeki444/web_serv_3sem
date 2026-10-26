@@ -2,30 +2,39 @@
 
 namespace App\Http\Controllers;
 
-use App\Mail\ArticleCreatedMail;
-use Illuminate\Support\Facades\Mail;
 use App\Models\Article;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
+use App\Models\User;
 use App\Jobs\VeryLongJob;
+use App\Notifications\NewArticleNotification;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Notification;
+// 3. Добавляем фасад Cache
+use Illuminate\Support\Facades\Cache;
 
 class ArticleController extends Controller
 {
-    // 1. Список статей с пагинацией по 5 штук
-    public function index()
+    // 4. В методе index кэшируем данные списка и пагинации (remember)
+    public function index(Request $request)
     {
-        $articles = Article::latest('id')->paginate(5);
+        $page = $request->get('page', 1);
+
+        // Кэшируем каждую страницу пагинации на 60 минут (3600 сек)
+        $articles = Cache::remember("articles_page_{$page}", 3600, function () {
+            return Article::latest('id')->paginate(5);
+        });
+
         return view('articles.index', ['articles' => $articles]);
     }
 
-    // 2. Страница с формой добавления
     public function create()
     {
         Gate::authorize('create', Article::class);
         return view('articles.create');
     }
 
-    // 3. Сохранение новой статьи в БД с валидацией
+    // 5. В методе store удаляем кэш пагинации (forget)
     public function store(Request $request)
     {
         Gate::authorize('create', Article::class);
@@ -40,30 +49,48 @@ class ArticleController extends Controller
         $validated['preview_image'] = 'preview.jpg';
         $validated['full_image'] = 'full.jpeg';
 
-        // 1. Создаем и сохраняем статью в БД
         $article = Article::create($validated);
 
-        // 2. Отправляем задачу рассылки в очередь фоновых заданий
+        // 5. Очищаем сохраненные страницы пагинации через forget
+        $totalPages = ceil(Article::count() / 5);
+        for ($i = 1; $i <= $totalPages + 1; $i++) {
+            Cache::forget("articles_page_{$i}");
+        }
+
+        // Очередь отправки почты (лаба 10)
         VeryLongJob::dispatch($article);
 
+        // Рассылка уведомлений читателям (лаба 12)
+        $readers = User::where('id', '!=', Auth::id())
+            ->whereHas('role', function ($query) {
+                $query->where('name', 'reader');
+            })
+            ->get();
+
+        Notification::send($readers, new NewArticleNotification($article));
+
         return redirect()->route('articles.index')
-            ->with('success', 'Статья успешно сохранена, а уведомление модератору отправлено в очередь!');
+            ->with('success', 'Статья успешно добавлена!');
     }
 
-    // 4. Просмотр одной полной статьи
+    // 6. В методе show кэшируем просмотр статьи вместе с комментариями навсегда (rememberForever)
     public function show(Article $article)
     {
-        return view('articles.show', ['article' => $article]);
+        $cachedArticle = Cache::rememberForever("article_show_{$article->id}", function () use ($article) {
+            // Загружаем статью вместе со связанными комментариями и их авторами
+            return $article->load(['comments.user']);
+        });
+
+        return view('articles.show', ['article' => $cachedArticle]);
     }
 
-    // 5. Страница с формой редактирования
     public function edit(Article $article)
     {
         Gate::authorize('update', $article);
         return view('articles.edit', ['article' => $article]);
     }
 
-    // 6. Обновление статьи в БД с валидацией
+    // 7. В методе update очищаем весь кэш (flush)
     public function update(Request $request, Article $article)
     {
         Gate::authorize('update', $article);
@@ -77,15 +104,24 @@ class ArticleController extends Controller
 
         $article->update($validated);
 
-        return redirect()->route('articles.index')->with('success', 'Статья успешно обновлена!');
+        // Полная очистка кэша
+        Cache::flush();
+
+        return redirect()->route('articles.index')
+            ->with('success', 'Статья успешно обновлена, кэш очищен!');
     }
 
-    // 7. Удаление статьи из БД
+    // 7. В методе destroy очищаем весь кэш (flush)
     public function destroy(Article $article)
     {
         Gate::authorize('delete', $article);
 
         $article->delete();
-        return redirect()->route('articles.index')->with('success', 'Статья успешно удалена!');
+
+        // Полная очистка кэша
+        Cache::flush();
+
+        return redirect()->route('articles.index')
+            ->with('success', 'Статья успешно удалена, кэш очищен!');
     }
 }
