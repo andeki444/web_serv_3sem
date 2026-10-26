@@ -62,4 +62,6 @@ Route::middleware('auth:sanctum')->group(function () {
     })->name('notifications.read'); 
 });
 
-Route::get('/articles/{article}', [ArticleController::class, 'show'])->name('articles.show');
+Route::get('/articles/{article}', [ArticleController::class, 'show'])
+    ->middleware('log.view')
+    ->name('articles.show');

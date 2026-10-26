@@ -11,9 +11,13 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // Поддержка Sanctum для сессий и редирект неавторизованных гостей на форму входа
         $middleware->statefulApi();
         $middleware->redirectGuestsTo('/login');
+
+        // Регистрируем наш middleware для логирования просмотров
+        $middleware->alias([
+            'log.view' => \App\Http\Middleware\LogArticleView::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
