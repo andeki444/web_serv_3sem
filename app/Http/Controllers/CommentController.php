@@ -7,7 +7,6 @@ use App\Models\Comment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Cache;
 
 class CommentController extends Controller
 {
@@ -45,6 +44,7 @@ class CommentController extends Controller
         return view('comments.moderation', ['comments' => $comments]);
     }
 
+    // Принять комментарий
     public function approve(Comment $comment)
     {
         if (!Auth::user() || !Auth::user()->role || Auth::user()->role->name !== 'moderator') {
@@ -53,24 +53,18 @@ class CommentController extends Controller
 
         $comment->update(['is_approved' => true]);
 
-        // Сбрасываем вечный кэш конкретной статьи
-        Cache::forget("article_show_{$comment->article_id}");
-
         return redirect()->route('comments.moderation')
             ->with('success', 'Комментарий успешно опубликован!');
     }
 
+    // Отклонить (удалить) комментарий
     public function reject(Comment $comment)
     {
         if (!Auth::user() || !Auth::user()->role || Auth::user()->role->name !== 'moderator') {
             abort(403, 'Только модератор может отклонять комментарии.');
         }
 
-        $articleId = $comment->article_id;
         $comment->delete();
-
-        // Сбрасываем вечный кэш конкретной статьи
-        Cache::forget("article_show_{$articleId}");
 
         return redirect()->route('comments.moderation')
             ->with('success', 'Комментарий отклонен и удален.');
