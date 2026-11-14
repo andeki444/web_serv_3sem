@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Мой сайт')</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         body { font-family: sans-serif; margin: 0; display: flex; flex-direction: column; min-height: 100vh; }
         header { background: #333; color: #fff; padding: 15px 20px; }
@@ -14,6 +15,7 @@
     </style>
 </head>
 <body>
+    <div id="article-notification"></div>
 
     <header>
         <nav style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">

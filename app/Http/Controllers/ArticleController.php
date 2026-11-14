@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Mail\ArticleCreatedMail;
+use App\Events\NewArticleEvent;
 use Illuminate\Support\Facades\Mail;
 use App\Models\Article;
 use Illuminate\Http\Request;
@@ -42,6 +43,7 @@ class ArticleController extends Controller
 
         // 1. Создаем и сохраняем статью в БД
         $article = Article::create($validated);
+        NewArticleEvent::dispatch($article);
 
         // 2. Отправляем задачу рассылки в очередь фоновых заданий
         VeryLongJob::dispatch($article);
